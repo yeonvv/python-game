@@ -8,7 +8,6 @@ screen = pygame.display.set_mode((screen_width, screen_height))
 
 pygame.display.set_caption("YJ GAME")
 
-# FPS
 clock = pygame.time.Clock()
 
 background = pygame.image.load(
@@ -24,18 +23,25 @@ character_height = character_size[1]
 character_x_pos = (screen_width / 2) - (character_width / 2)
 character_y_pos = screen_height - character_height
 
+# 적 캐릭터 불러오기
+enemy = pygame.image.load(
+    "C:/Users/customer/Desktop/yj/dev.p/python-game/pygame_basic/enemy.png"
+)
+enemy_size = enemy.get_rect().size
+enemy_width = enemy_size[0]
+enemy_height = enemy_size[1]
+enemy_x_pos = (screen_width / 2) - (enemy_width / 2)
+enemy_y_pos = (screen_height / 2) - (enemy_height / 2)
+
 to_x = 0
 to_y = 0
 
-# 이동 속도
 character_speed = 0.6
 fps_value = 30
 
 running = True
 while running:
-    dt = clock.tick(
-        fps_value
-    )  # 게임화면의 초당 프레임 수를 설정. 마지막 프레임 이후 경과한 시간을 밀리초 단위로 반환
+    dt = clock.tick(fps_value)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -54,7 +60,7 @@ while running:
                 to_x = 0
             elif event.key == pygame.K_UP or event.key == pygame.K_DOWN:
                 to_y = 0
-    # 프레임 간의 시간 차이를 고려하여 캐릭터의 이동 속도를 일정하게 유지하기 위함
+
     character_x_pos += to_x * dt
     character_y_pos += to_y * dt
 
@@ -68,8 +74,22 @@ while running:
     elif character_y_pos + character_height > screen_height:
         character_y_pos = screen_height - character_height
 
+    # 충돌 처리
+    character_rect = character.get_rect()
+    character_rect.top = character_y_pos
+    character_rect.left = character_x_pos
+
+    enemy_rect = enemy.get_rect()
+    enemy_rect.top = enemy_y_pos
+    enemy_rect.left = enemy_x_pos
+
+    if character_rect.colliderect(enemy_rect):
+        print("게임 오버")
+        running = False
+
     screen.blit(background, (0, 0))
     screen.blit(character, (character_x_pos, character_y_pos))
+    screen.blit(enemy, (enemy_x_pos, enemy_y_pos))  # 적 최초 위치
 
     pygame.display.update()
 
