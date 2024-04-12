@@ -77,8 +77,6 @@ balls.append(
         "init_spd_y": ball_speed_y[0],  # y 최초 속도
     }
 )
-# ball_size = [ball.get_rect().size for ball in balls]
-# ball_width = [ball[0] for ball in ball_size]
 
 # 2. 이벤트 처리 (키보드, 마우스 등)########################################################
 running = True
@@ -121,12 +119,40 @@ while running:
         [w[0], w[1]] for w in weapons if w[1] > 0
     ]  # if문에 적합한 요소는 리스트에 남고 적합하지 않게 되면 요소에서 빠진다. 요소를 뺄 생각 안해도 된다는 뜻
 
+    # 공 위치 정의
+    for ball_idx, ball_val in enumerate(balls):
+        ball_x_pos = ball_val["pos_x"]
+        ball_y_pos = ball_val["pos_y"]
+        ball_img_idx = ball_val["img_idx"]
+
+        ball_size = ball[ball_img_idx].get_rect().size
+        ball_width = ball_size[0]
+        ball_height = ball_size[1]
+
+        # 가로벽에 닿았을 때 공 이동 방향 변경(튕겨 나오는 효과)
+        if ball_x_pos < 0 or ball_x_pos > screen_width - ball_width:
+            ball_val["to_x"] *= -1
+
+        # 스테이지에 튕길 떄
+        if ball_y_pos >= screen_height - stage_height - ball_height:
+            ball_val["to_y"] = ball_val["init_spd_y"]
+        else:  # 그 외의 모든 경우에는 속도를 증가 = 감소한다는 뜻
+            ball_val["to_y"] += 0.5
+
+        ball_val["pos_x"] += ball_val["to_x"]
+        ball_val["pos_y"] += ball_val["to_y"]
+
     # 4. 충돌 처리########################################################################
 
     # 5. 화면에 그리기#####################################################################
     screen.blit(background, (0, 0))
     for weapon_x_pos, weapon_y_pos in weapons:
         screen.blit(weapon, (weapon_x_pos, weapon_y_pos))
+    for idx, val in enumerate(balls):
+        ball_x_pos = val["pos_x"]
+        ball_y_pos = val["pos_y"]
+        ball_img_idx = val["img_idx"]
+        screen.blit(ball[ball_img_idx], (ball_x_pos, ball_y_pos))
     screen.blit(stage, (0, screen_height - stage_height))
     screen.blit(character, (character_x_pos, character_y_pos))
 
